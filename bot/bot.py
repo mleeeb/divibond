@@ -25,8 +25,8 @@ from aiogram import Bot, Dispatcher
 from aiogram.filters import CommandStart
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, Message, WebAppInfo
 
-BOT_TOKEN = os.environ.get("BOT_TOKEN", "7355548334:AAErpHENllaTpnbH4p9TOOAFoHwXcESQ0E4")
-WEBAPP_URL = os.environ.get("WEBAPP_URL", "https://your-domain.example/divibond/")
+BOT_TOKEN = os.environ.get("BOT_TOKEN", "")
+WEBAPP_URL = os.environ.get("WEBAPP_URL", "https://mleeeb.github.io/divibond/frontend/index.html")
 
 bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher()
