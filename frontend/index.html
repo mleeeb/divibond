@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>ДивиБонд</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+  :root {
+    --bg: #EDE9FB;
+    --navy: #1B2A6B;
+    --navy-soft: #5B5F8A;
+    --white: #ffffff;
+    --muted: #8C8FB5;
+    --green: #2F8F5B;
+    --amber-bg: #FBEFD9;
+    --amber-text: #8A5A00;
+    --radius: 12px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--navy);
+    max-width: 480px;
+    margin: 0 auto;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+  header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 18px 8px;
+  }
+  header h1 { font-size: 20px; font-weight: 500; }
+  .icon-btn { display: flex; cursor: pointer; color: var(--navy); }
+  main { flex: 1; padding: 8px 18px 24px; }
+  nav#bottom-nav {
+    position: sticky; bottom: 0; display: flex; justify-content: space-around;
+    background: var(--bg); border-top: 0.5px solid rgba(27,42,107,0.12);
+    padding: 10px 0;
+  }
+  .nav-item {
+    display: flex; flex-direction: column; align-items: center; gap: 2px;
+    color: var(--muted); cursor: pointer; font-size: 10px; user-select: none;
+  }
+  .nav-item.active { color: var(--navy); font-weight: 500; }
+
+  .card { background: var(--white); border-radius: var(--radius); padding: 12px 14px; margin-bottom: 8px; cursor: pointer; }
+  .card-row { display: flex; justify-content: space-between; align-items: flex-start; }
+  .muted { color: var(--muted); font-size: 12px; }
+  .yield { color: var(--green); font-weight: 500; font-size: 14px; margin: 0 0 2px; }
+  .divider-row {
+    display: flex; justify-content: space-between; margin-top: 6px; padding-top: 6px;
+    border-top: 0.5px solid rgba(27,42,107,0.1); font-size: 12px; color: var(--muted);
+  }
+  .badge {
+    display: inline-block; background: rgba(27,42,107,0.08); color: var(--navy);
+    font-size: 11px; font-weight: 500; padding: 2px 8px; border-radius: 8px;
+  }
+
+  .segmented { display: flex; gap: 6px; background: rgba(27,42,107,0.07); border-radius: var(--radius); padding: 4px; margin-bottom: 16px; }
+  .segmented button { flex: 1; border: none; background: transparent; color: var(--navy); font-size: 13px; font-weight: 500; padding: 8px 0; border-radius: 7px; cursor: pointer; }
+  .segmented button.active { background: var(--navy); color: var(--bg); }
+
+  .metric-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+  .metric { background: var(--white); border-radius: var(--radius); padding: 12px 14px; }
+  .metric .label { font-size: 12px; color: var(--muted); margin-bottom: 4px; }
+  .metric .value { font-size: 22px; font-weight: 500; }
+  .metric .sub { font-size: 11px; color: var(--muted); margin-top: 4px; }
+
+  .chip {
+    display: inline-flex; align-items: center; gap: 4px; background: var(--white);
+    border: 0.5px solid rgba(27,42,107,0.25); border-radius: 14px; padding: 6px 12px;
+    font-size: 12px; cursor: pointer; color: var(--navy);
+  }
+  .chip.active { background: var(--navy); color: var(--bg); border: none; font-weight: 500; }
+
+  .filter-btn {
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    background: var(--navy); color: var(--bg); border: none; font-size: 13px;
+    font-weight: 500; padding: 8px 0; border-radius: var(--radius); cursor: pointer; flex: 1;
+  }
+
+  .warning {
+    display: flex; gap: 8px; align-items: flex-start; background: var(--amber-bg);
+    color: var(--amber-text); border-radius: var(--radius); padding: 10px 12px;
+    margin-bottom: 12px; font-size: 12px; line-height: 1.4;
+  }
+
+  .details-card { background: var(--white); border-radius: var(--radius); padding: 4px 14px; margin-bottom: 14px; }
+  .detail-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 0.5px solid rgba(27,42,107,0.1); font-size: 13px; }
+  .detail-row:last-child { border-bottom: none; }
+  .detail-row .l { color: var(--muted); }
+  .detail-row .v { font-weight: 500; }
+
+  .primary-btn {
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    background: var(--navy); color: var(--bg); border: none; font-size: 14px;
+    font-weight: 500; padding: 12px 0; border-radius: var(--radius); cursor: pointer;
+    width: 100%; margin-top: 8px;
+  }
+  .secondary-btn { background: var(--white); color: var(--navy); border: 0.5px solid rgba(27,42,107,0.25); }
+
+  .filter-label { font-size: 12px; font-weight: 500; color: var(--navy-soft); margin: 0 0 8px; }
+  .filter-row { display: flex; gap: 10px; margin-bottom: 18px; }
+  .filter-row > div { flex: 1; }
+  .filter-input {
+    width: 100%; border: 0.5px solid rgba(27,42,107,0.25); border-radius: 8px;
+    padding: 8px 10px; font-size: 13px; color: var(--navy); background: var(--white);
+    font-family: inherit;
+  }
+
+  .sheet-overlay {
+    position: fixed; inset: 0; background: rgba(27,42,107,0.35);
+    display: flex; align-items: flex-end; max-width: 480px; margin: 0 auto; z-index: 50;
+  }
+  .sheet { background: var(--white); border-radius: 20px 20px 0 0; padding: 14px 18px 18px; width: 100%; max-height: 85vh; overflow-y: auto; }
+  .hidden { display: none; }
+
+  .empty { text-align: center; color: var(--muted); padding: 40px 16px; font-size: 13px; line-height: 1.6; }
+</style>
+</head>
+<body>
+  <header id="app-header"></header>
+  <main id="view"></main>
+  <nav id="bottom-nav"></nav>
+
+  <div id="filter-sheet" class="sheet-overlay hidden">
+    <div class="sheet" id="filter-sheet-content"></div>
+  </div>
+
+<script>
+// ---------------------------------------------------------------------------
+// Конфигурация
+// ---------------------------------------------------------------------------
+// Адрес бэкенда. Для Telegram Mini App нужен HTTPS — при деплое замените на
+// адрес вашего сервера (можно объявить window.DIVIBOND_API_BASE до загрузки
+// этого файла, чтобы не редактировать код).
+const API_BASE = window.DIVIBOND_API_BASE || 'http://localhost:8000';
+
+const tg = window.Telegram?.WebApp;
+tg?.ready();
+tg?.expand();
+
+// ---------------------------------------------------------------------------
+// Иконки (минимальный набор, в стиле Tabler Icons, без внешних зависимостей)
+// ---------------------------------------------------------------------------
+const ICONS = {
+  home: '<path d="M3 12l9-9 9 9"/><path d="M5 10v10h14V10"/>',
+  file: '<rect x="4" y="4" width="16" height="16" rx="2"/><line x1="8" y1="9" x2="16" y2="9"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="13" y2="17"/>',
+  trending: '<polyline points="3 17 9 11 13 15 21 7"/><polyline points="14 7 21 7 21 14"/>',
+  star: '<polygon points="12 2 15 9 22 9 16.5 14 18.5 21 12 17 5.5 21 7.5 14 2 9 9 9"/>',
+  starFilled: '<polygon points="12 2 15 9 22 9 16.5 14 18.5 21 12 17 5.5 21 7.5 14 2 9 9 9" fill="currentColor"/>',
+  settings: '<circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="8" stroke-dasharray="2.5 3.5"/>',
+  chevronLeft: '<polyline points="15 18 9 12 15 6"/>',
+  filter: '<line x1="4" y1="6" x2="20" y2="6"/><circle cx="9" cy="6" r="2" fill="currentColor"/><line x1="4" y1="12" x2="20" y2="12"/><circle cx="15" cy="12" r="2" fill="currentColor"/><line x1="4" y1="18" x2="20" y2="18"/><circle cx="9" cy="18" r="2" fill="currentColor"/>',
+  x: '<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>',
+  trash: '<polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v4"/><path d="M14 11v4"/><path d="M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2"/>',
+  alert: '<path d="M12 3 L22 20 H2 Z"/><line x1="12" y1="9" x2="12" y2="13"/><circle cx="12" cy="16.5" r="0.7" fill="currentColor"/>',
+};
+function icon(name, size = 20) {
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ICONS[name] || ''}</svg>`;
+}
+
+// ---------------------------------------------------------------------------
+// Состояние приложения
+// ---------------------------------------------------------------------------
+const state = {
+  view: 'home',
+  detailId: null,
+  homeTab: 'bonds',
+  bondFilters: { yield_min: null, yield_max: null, price_min: null, price_max: null, maturity: 'all', bond_type: 'all' },
+  stockFilters: { yield_min: null, yield_max: null, price_min: null, price_max: null, sector: 'all' },
+  meta: { dividend_year: new Date().getFullYear() - 1, sectors: [] },
+  favorites: new Set(JSON.parse(localStorage.getItem('divibond_favorites') || '[]')),
+  filterType: null,
+  tempFilters: null,
+};
+
+function saveFavorites() {
+  localStorage.setItem('divibond_favorites', JSON.stringify([...state.favorites]));
+}
+function favKey(kind, secid) { return `${kind}:${secid}`; }
+
+// ---------------------------------------------------------------------------
+// API
+// ---------------------------------------------------------------------------
+async function api(path, params = {}) {
+  const url = new URL(API_BASE + path);
+  Object.entries(params).forEach(([k, v]) => {
+    if (v !== null && v !== undefined && v !== '' && v !== 'all') url.searchParams.set(k, v);
+  });
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`${path} → HTTP ${res.status}`);
+  return res.json();
+}
+
+// ---------------------------------------------------------------------------
+// Форматирование
+// ---------------------------------------------------------------------------
+function fmtPercent(v) { return (v === null || v === undefined) ? '—' : `${String(v).replace('.', ',')}%`; }
+function fmtPrice(v, suffix) { return (v === null || v === undefined) ? '—' : `${String(v).replace('.', ',')} ${suffix}`; }
+function maturityYear(dateStr) { return dateStr ? dateStr.slice(0, 4) : '—'; }
+
+// ---------------------------------------------------------------------------
+// Карточки списков
+// ---------------------------------------------------------------------------
+function bondCard(b) {
+  return `
+  <div class="card" onclick="setView('bond-detail','${b.secid}')">
+    <div class="card-row">
+      <div>
+        <p style="font-weight:500;">${b.name}</p>
+        <p class="muted">${b.type}${b.is_floating ? ' · переменный купон' : ''}</p>
+      </div>
+      <div style="text-align:right;">
+        <p class="yield">${fmtPercent(b.yield)}</p>
+        <p class="muted" style="font-size:11px;">текущая доходность</p>
+      </div>
+    </div>
+    <div class="divider-row">
+      <span>Цена: ${fmtPercent(b.price)}</span>
+      <span>Погашение: ${maturityYear(b.maturity)}</span>
+    </div>
+  </div>`;
+}
+
+function stockCard(s) {
+  return `
+  <div class="card" onclick="setView('stock-detail','${s.secid}')">
+    <div class="card-row">
+      <div>
+        <p style="font-weight:500;">${s.secid}</p>
+        <p class="muted">${s.name} · ${s.sector}</p>
+      </div>
+      <div style="text-align:right;">
+        <p class="yield">${fmtPercent(s.dividend_yield)}</p>
+        <p class="muted" style="font-size:11px;">дивдоходность ${s.dividend_year}</p>
+      </div>
+    </div>
+    <div class="divider-row">
+      <span>Цена: ${fmtPrice(s.price, '₽')}</span>
+      <span>Сектор: ${s.sector}</span>
+    </div>
+  </div>`;
+}
+
+function favBondCard(b) {
+  return `
+  <div class="card" onclick="setView('bond-detail','${b.secid}')">
+    <div class="card-row">
+      <div>
+        <span class="badge">Облигация</span>
+        <p style="font-weight:500; margin-top:6px;">${b.name}</p>
+        <p class="muted">${b.type}</p>
+      </div>
+      <div style="display:flex; flex-direction:column; align-items:flex-end; justify-content:space-between; min-height:54px;">
+        <span class="icon-btn" onclick="event.stopPropagation(); toggleFavorite('bond','${b.secid}')">${icon('trash', 16)}</span>
+        <div style="text-align:right;">
+          <p class="yield">${fmtPercent(b.yield)}</p>
+          <p class="muted" style="font-size:11px;">текущая доходность</p>
+        </div>
+      </div>
+    </div>
+    <div class="divider-row">
+      <span>Цена: ${fmtPercent(b.price)}</span>
+      <span>Погашение: ${maturityYear(b.maturity)}</span>
+    </div>
+  </div>`;
+}
+
+function favStockCard(s) {
+  return `
+  <div class="card" onclick="setView('stock-detail','${s.secid}')">
+    <div class="card-row">
+      <div>
+        <span class="badge">Акция</span>
+        <p style="font-weight:500; margin-top:6px;">${s.secid}</p>
+        <p class="muted">${s.name} · ${s.sector}</p>
+      </div>
+      <div style="display:flex; flex-direction:column; align-items:flex-end; justify-content:space-between; min-height:54px;">
+        <span class="icon-btn" onclick="event.stopPropagation(); toggleFavorite('stock','${s.secid}')">${icon('trash', 16)}</span>
+        <div style="text-align:right;">
+          <p class="yield">${fmtPercent(s.dividend_yield)}</p>
+          <p class="muted" style="font-size:11px;">дивдоходность ${s.dividend_year}</p>
+        </div>
+      </div>
+    </div>
+    <div class="divider-row">
+      <span>Цена: ${fmtPrice(s.price, '₽')}</span>
+      <span>Сектор: ${s.sector}</span>
+    </div>
+  </div>`;
+}
+
+// ---------------------------------------------------------------------------
+// Избранное
+// ---------------------------------------------------------------------------
+function toggleFavorite(kind, secid) {
+  const key = favKey(kind, secid);
+  if (state.favorites.has(key)) state.favorites.delete(key); else state.favorites.add(key);
+  saveFavorites();
+  render();
+}
+function favButton(kind, secid) {
+  const isFav = state.favorites.has(favKey(kind, secid));
+  return `<button class="primary-btn" onclick="toggleFavorite('${kind}','${secid}')">${icon(isFav ? 'starFilled' : 'star', 16)} ${isFav ? 'В избранном' : 'Добавить в избранное'}</button>`;
+}
+
+// ---------------------------------------------------------------------------
+// Экраны
+// ---------------------------------------------------------------------------
+async function renderHome(view) {
+  const tab = state.homeTab;
+  const items = tab === 'bonds' ? await api('/api/bonds') : await api('/api/stocks');
+  const top = [...items]
+    .sort((a, b) => (tab === 'bonds' ? (b.yield || 0) - (a.yield || 0) : b.dividend_yield - a.dividend_yield))
+    .slice(0, 3);
+  const avg = items.length
+    ? items.reduce((s, i) => s + (tab === 'bonds' ? (i.yield || 0) : i.dividend_yield), 0) / items.length
+    : 0;
+
+  view.innerHTML = `
+    <div class="segmented">
+      <button class="${tab === 'bonds' ? 'active' : ''}" onclick="setHomeTab('bonds')">Облигации</button>
+      <button class="${tab === 'stocks' ? 'active' : ''}" onclick="setHomeTab('stocks')">Акции</button>
+    </div>
+    <div class="metric-grid">
+      <div class="metric"><div class="label">Инструментов</div><div class="value">${items.length}</div></div>
+      <div class="metric"><div class="label">Средняя доходность</div><div class="value">${avg.toFixed(1).replace('.', ',')}%</div></div>
+    </div>
+    <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:10px;">
+      <p style="font-weight:500;">Топ по доходности${tab === 'stocks' ? ` · ${state.meta.dividend_year}` : ''}</p>
+      <span class="muted" style="cursor:pointer;" onclick="setView('${tab}')">Все</span>
+    </div>
+    ${top.length ? top.map(tab === 'bonds' ? bondCard : stockCard).join('') : '<div class="empty">Нет данных</div>'}
+  `;
+}
+function setHomeTab(tab) { state.homeTab = tab; render(); }
+
+async function renderBondsList(view) {
+  const bonds = await api('/api/bonds', state.bondFilters);
+  view.innerHTML = `
+    <div style="display:flex; gap:8px; margin-bottom:14px;">
+      <button class="filter-btn" onclick="openFilters('bonds')">${icon('filter', 16)} Фильтры</button>
+    </div>
+    ${bonds.length ? bonds.map(bondCard).join('') : '<div class="empty">Нет облигаций по заданным фильтрам</div>'}
+  `;
+}
+
+async function renderStocksList(view) {
+  const stocks = await api('/api/stocks', state.stockFilters);
+  view.innerHTML = `
+    <div style="display:flex; gap:8px; margin-bottom:14px;">
+      <button class="filter-btn" onclick="openFilters('stocks')">${icon('filter', 16)} Фильтры</button>
+    </div>
+    ${stocks.length ? stocks.map(stockCard).join('') : '<div class="empty">Нет акций по заданным фильтрам</div>'}
+  `;
+}
+
+async function renderBondDetail(view, secid) {
+  const b = await api(`/api/bonds/${secid}`);
+  const warning = b.is_floating
+    ? `<div class="warning">${icon('alert', 16)}<span>Купон переменный: доходность рассчитана по последней выплате и может измениться при пересмотре ставки</span></div>`
+    : '';
+  view.innerHTML = `
+    <p class="muted" style="margin-bottom:12px;"><span class="badge">${b.type}${b.is_floating ? ' · перем. купон' : ''}</span> ${b.isin || ''}</p>
+    <div class="metric-grid">
+      <div class="metric"><div class="label">Текущая цена</div><div class="value">${fmtPercent(b.price)}</div><div class="sub">от номинала</div></div>
+      <div class="metric"><div class="label">Текущая доходность</div><div class="value" style="color:var(--green)">${fmtPercent(b.yield)}</div><div class="sub">к погашению</div></div>
+    </div>
+    ${warning}
+    <div class="details-card" style="padding:12px 14px;">
+      <p style="font-weight:500; margin-bottom:8px;">Ближайшие выплаты купона</p>
+      ${b.upcoming_coupons.map(c => `<div class="detail-row"><span class="l">${c.date}</span><span class="v">${String(c.amount).replace('.', ',')} ₽</span></div>`).join('')}
+    </div>
+    <div class="details-card">
+      <div class="detail-row"><span class="l">Номинал</span><span class="v">${b.face_value} ₽</span></div>
+      <div class="detail-row"><span class="l">Ставка купона</span><span class="v">${b.coupon_percent != null ? fmtPercent(b.coupon_percent) : 'переменная'}</span></div>
+      <div class="detail-row"><span class="l">Дата погашения</span><span class="v">${b.maturity}</span></div>
+    </div>
+    ${favButton('bond', b.secid)}
+  `;
+}
+
+async function renderStockDetail(view, secid) {
+  const s = await api(`/api/stocks/${secid}`);
+  view.innerHTML = `
+    <p class="muted" style="margin-bottom:12px;"><span class="badge">${s.sector}</span> ${s.isin || ''}</p>
+    <div class="metric-grid">
+      <div class="metric"><div class="label">Текущая цена</div><div class="value">${fmtPrice(s.price, '₽')}</div><div class="sub">за акцию</div></div>
+      <div class="metric"><div class="label">Дивдоходность за ${s.dividend_year}</div><div class="value" style="color:var(--green)">${fmtPercent(s.dividend_yield)}</div><div class="sub">по факту выплат</div></div>
+    </div>
+    <div class="warning">${icon('alert', 16)}<span>Дивиденды не гарантированы. Доходность рассчитана по факту выплат за ${s.dividend_year} год и может измениться</span></div>
+    <div class="details-card" style="padding:12px 14px;">
+      <p style="font-weight:500; margin-bottom:8px;">История дивидендов на акцию</p>
+      ${s.dividends_history.map(d => `<div class="detail-row"><span class="l">${d.registryclosedate.slice(0, 4)}</span><span class="v">${String(d.value).replace('.', ',')} ₽</span></div>`).join('')}
+    </div>
+    ${favButton('stock', s.secid)}
+  `;
+}
+
+async function renderFavorites(view) {
+  const keys = [...state.favorites];
+  if (!keys.length) {
+    view.innerHTML = '<div class="empty">Пока нет сохранённых инструментов.<br>Откройте облигацию или акцию и нажмите «Добавить в избранное».</div>';
+    return;
+  }
+  const items = await Promise.all(keys.map(async (k) => {
+    const [kind, secid] = k.split(':');
+    const data = kind === 'bond' ? await api(`/api/bonds/${secid}`) : await api(`/api/stocks/${secid}`);
+    return { kind, data };
+  }));
+  view.innerHTML =
+    `<p class="muted" style="margin-bottom:12px;">${items.length} инструмент(ов)</p>` +
+    items.map(({ kind, data }) => (kind === 'bond' ? favBondCard(data) : favStockCard(data))).join('');
+}
+
+function renderSettings(view) {
+  view.innerHTML = `
+    <div class="details-card">
+      <div class="detail-row"><span class="l">Адрес API</span><span class="v">${API_BASE}</span></div>
+      <div class="detail-row"><span class="l">Год расчёта дивдоходности</span><span class="v">${state.meta.dividend_year}</span></div>
+      <div class="detail-row"><span class="l">В избранном</span><span class="v">${state.favorites.size}</span></div>
+    </div>
+    <button class="primary-btn secondary-btn" onclick="clearFavorites()">Очистить избранное</button>
+  `;
+}
+function clearFavorites() { state.favorites.clear(); saveFavorites(); render(); }
+
+// ---------------------------------------------------------------------------
+// Фильтры (bottom sheet)
+// ---------------------------------------------------------------------------
+function openFilters(type) {
+  state.filterType = type;
+  state.tempFilters = { ...(type === 'bonds' ? state.bondFilters : state.stockFilters) };
+  renderFilterSheet();
+  document.getElementById('filter-sheet').classList.remove('hidden');
+}
+function closeFilters() { document.getElementById('filter-sheet').classList.add('hidden'); }
+function closeFiltersOnOverlay(e) { if (e.target.id === 'filter-sheet') closeFilters(); }
+
+function setTempFilterSilent(key, value) { state.tempFilters[key] = value; }
+function setTempFilter(key, value) { state.tempFilters[key] = value; renderFilterSheet(); }
+
+function resetFilters() {
+  state.tempFilters = state.filterType === 'bonds'
+    ? { yield_min: null, yield_max: null, price_min: null, price_max: null, maturity: 'all', bond_type: 'all' }
+    : { yield_min: null, yield_max: null, price_min: null, price_max: null, sector: 'all' };
+  renderFilterSheet();
+}
+function applyFilters() {
+  if (state.filterType === 'bonds') state.bondFilters = { ...state.tempFilters };
+  else state.stockFilters = { ...state.tempFilters };
+  closeFilters();
+  render();
+}
+
+function renderFilterSheet() {
+  const sheet = document.getElementById('filter-sheet-content');
+  const f = state.tempFilters;
+  const type = state.filterType;
+
+  let extraChips = '';
+  if (type === 'bonds') {
+    const types = [['all', 'Все'], ['ОФЗ', 'ОФЗ'], ['Корпоративная', 'Корпоративные']];
+    extraChips += `<p class="filter-label">Тип инструмента</p><div style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:18px;">`
+      + types.map(([v, l]) => `<span class="chip ${(f.bond_type || 'all') === v ? 'active' : ''}" onclick="setTempFilter('bond_type','${v}')">${l}</span>`).join('')
+      + `</div>`;
+
+    const maturities = [['all', 'Все'], ['lt1', 'До 1 года'], ['1to3', '1–3 года'], ['3to5', '3–5 лет'], ['gt5', 'Более 5 лет']];
+    extraChips += `<p class="filter-label">Срок до погашения</p><div style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:20px;">`
+      + maturities.map(([v, l]) => `<span class="chip ${(f.maturity || 'all') === v ? 'active' : ''}" onclick="setTempFilter('maturity','${v}')">${l}</span>`).join('')
+      + `</div>`;
+  } else {
+    const sectors = ['all', ...(state.meta.sectors || [])];
+    extraChips += `<p class="filter-label">Сектор</p><div style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:20px;">`
+      + sectors.map(s => `<span class="chip ${(f.sector || 'all') === s ? 'active' : ''}" onclick="setTempFilter('sector','${s}')">${s === 'all' ? 'Все' : s}</span>`).join('')
+      + `</div>`;
+  }
+
+  const yieldLabel = type === 'bonds' ? 'Текущая доходность, %' : `Дивидендная доходность за ${state.meta.dividend_year} год, %`;
+  const priceLabel = type === 'bonds' ? 'Цена, % от номинала' : 'Цена, ₽';
+
+  sheet.innerHTML = `
+    <div style="width:40px; height:4px; background:rgba(27,42,107,0.15); border-radius:2px; margin:0 auto 14px;"></div>
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+      <p style="font-size:17px; font-weight:500;">Фильтры</p>
+      <span class="icon-btn" onclick="closeFilters()">${icon('x', 18)}</span>
+    </div>
+
+    <p class="filter-label">${yieldLabel}</p>
+    <div class="filter-row">
+      <div><input class="filter-input" type="number" placeholder="от" value="${f.yield_min ?? ''}" oninput="setTempFilterSilent('yield_min', this.value ? Number(this.value) : null)"></div>
+      <div><input class="filter-input" type="number" placeholder="до" value="${f.yield_max ?? ''}" oninput="setTempFilterSilent('yield_max', this.value ? Number(this.value) : null)"></div>
+    </div>
+
+    <p class="filter-label">${priceLabel}</p>
+    <div class="filter-row">
+      <div><input class="filter-input" type="number" placeholder="от" value="${f.price_min ?? ''}" oninput="setTempFilterSilent('price_min', this.value ? Number(this.value) : null)"></div>
+      <div><input class="filter-input" type="number" placeholder="до" value="${f.price_max ?? ''}" oninput="setTempFilterSilent('price_max', this.value ? Number(this.value) : null)"></div>
+    </div>
+
+    ${extraChips}
+
+    <div style="display:flex; gap:10px;">
+      <button class="primary-btn secondary-btn" style="margin-top:0;" onclick="resetFilters()">Сбросить</button>
+      <button class="primary-btn" style="margin-top:0; flex:2;" onclick="applyFilters()">Показать</button>
+    </div>
+  `;
+}
+
+// ---------------------------------------------------------------------------
+// Навигация и общий рендер
+// ---------------------------------------------------------------------------
+function setView(view, id = null) {
+  state.view = view;
+  state.detailId = id;
+  render();
+}
+
+function renderHeader() {
+  const titles = { home: 'Главная', bonds: 'Облигации', stocks: 'Акции', favorites: 'Избранное', settings: 'Настройки' };
+  const isDetail = state.view === 'bond-detail' || state.view === 'stock-detail';
+  const showBack = isDetail || state.view === 'bonds' || state.view === 'stocks';
+  const title = isDetail ? state.detailId : titles[state.view];
+  const backTarget = isDetail ? (state.view === 'bond-detail' ? 'bonds' : 'stocks') : 'home';
+
+  let action = '';
+  if (isDetail) {
+    const kind = state.view === 'bond-detail' ? 'bond' : 'stock';
+    const isFav = state.favorites.has(favKey(kind, state.detailId));
+    action = `<span class="icon-btn" onclick="toggleFavorite('${kind}','${state.detailId}')">${icon(isFav ? 'starFilled' : 'star')}</span>`;
+  }
+
+  document.getElementById('app-header').innerHTML = `
+    <div style="display:flex; align-items:center; gap:10px;">
+      ${showBack ? `<span class="icon-btn" onclick="setView('${backTarget}')">${icon('chevronLeft')}</span>` : ''}
+      <h1>${title || ''}</h1>
+    </div>
+    ${action}
+  `;
+}
+
+function renderNav() {
+  const items = [
+    { id: 'home', label: 'Главная', icon: 'home' },
+    { id: 'bonds', label: 'Облигации', icon: 'file' },
+    { id: 'stocks', label: 'Акции', icon: 'trending' },
+    { id: 'favorites', label: 'Избранное', icon: 'star' },
+    { id: 'settings', label: 'Настройки', icon: 'settings' },
+  ];
+  const activeMap = { 'bond-detail': 'bonds', 'stock-detail': 'stocks' };
+  const active = activeMap[state.view] || state.view;
+
+  document.getElementById('bottom-nav').innerHTML = items.map(it => `
+    <div class="nav-item ${active === it.id ? 'active' : ''}" onclick="setView('${it.id}')">
+      ${icon(it.icon)}
+      <span>${it.label}</span>
+    </div>`).join('');
+}
+
+async function render() {
+  renderHeader();
+  renderNav();
+  const view = document.getElementById('view');
+  view.innerHTML = '<div class="empty">Загрузка...</div>';
+  try {
+    switch (state.view) {
+      case 'home': await renderHome(view); break;
+      case 'bonds': await renderBondsList(view); break;
+      case 'stocks': await renderStocksList(view); break;
+      case 'bond-detail': await renderBondDetail(view, state.detailId); break;
+      case 'stock-detail': await renderStockDetail(view, state.detailId); break;
+      case 'favorites': await renderFavorites(view); break;
+      case 'settings': renderSettings(view); break;
+    }
+  } catch (e) {
+    view.innerHTML = `<div class="empty">Не удалось загрузить данные.<br>Убедитесь, что бэкенд запущен и доступен по адресу:<br><code>${API_BASE}</code><br><br>${e.message}</div>`;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Инициализация
+// ---------------------------------------------------------------------------
+document.getElementById('filter-sheet').addEventListener('click', closeFiltersOnOverlay);
+
+(async function init() {
+  try {
+    state.meta = await api('/api/meta');
+  } catch (e) {
+    state.meta = { dividend_year: new Date().getFullYear() - 1, sectors: [] };
+  }
+  render();
+})();
+</script>
+</body>
+</html>

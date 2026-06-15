@@ -1,0 +1,16 @@
+{
+  "securities": {
+    "columns": ["SECID", "BOARDID", "SHORTNAME", "ISIN", "FACEVALUE", "COUPONVALUE", "COUPONPERIOD", "COUPONPERCENT", "NEXTCOUPON", "MATDATE"],
+    "data": [
+      ["SU26238RMFS4", "TQOB", "ОФЗ 26238", "RU000A103X66", 1000, 61.25, 182, 12.25, "2026-08-15", "2041-12-17"],
+      ["SU26244RMFS9", "TQOB", "ОФЗ 26244", "RU000A1075V0", 1000, 57.50, 182, 11.50, "2026-09-01", "2034-03-16"]
+    ]
+  },
+  "marketdata": {
+    "columns": ["SECID", "BOARDID", "LAST", "YIELD"],
+    "data": [
+      ["SU26238RMFS4", "TQOB", 91.4, 13.8],
+      ["SU26244RMFS9", "TQOB", 89.8, 14.1]
+    ]
+  }
+}

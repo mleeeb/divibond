@@ -1,0 +1,18 @@
+{
+  "securities": {
+    "columns": ["SECID", "BOARDID", "SHORTNAME", "ISIN", "FACEVALUE", "COUPONVALUE", "COUPONPERIOD", "COUPONPERCENT", "NEXTCOUPON", "MATDATE"],
+    "data": [
+      ["RUSN1P26", "TQCB", "РОСН-2026", "RU000ASAMPLE1", 1000, 37.50, 91, 15.00, "2026-07-20", "2026-12-15"],
+      ["GAZPB19", "TQCB", "ГазпромКап БО-19", "RU000ASAMPLE2", 1000, 36.25, 91, 14.50, "2026-08-10", "2027-05-20"],
+      ["VTBB199", "TQCB", "ВТБ Б1-99", "RU000ASAMPLE3", 1000, 44.80, 91, null, "2026-09-15", "2029-05-20"]
+    ]
+  },
+  "marketdata": {
+    "columns": ["SECID", "BOARDID", "LAST", "YIELD"],
+    "data": [
+      ["RUSN1P26", "TQCB", 98.7, 15.2],
+      ["GAZPB19", "TQCB", 96.0, 14.6],
+      ["VTBB199", "TQCB", 99.2, null]
+    ]
+  }
+}

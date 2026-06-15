@@ -1,0 +1,20 @@
+{
+  "securities": {
+    "columns": ["SECID", "BOARDID", "SHORTNAME", "SECNAME", "ISIN"],
+    "data": [
+      ["SBER", "TQBR", "Сбербанк", "Сбербанк, ао", "RU0009029540"],
+      ["LKOH", "TQBR", "Лукойл", "Лукойл, ао", "RU0009024277"],
+      ["MTSS", "TQBR", "МТС", "МТС, ао", "RU0007775219"],
+      ["TATN", "TQBR", "Татнефть", "Татнефть, ао", "RU0009033591"]
+    ]
+  },
+  "marketdata": {
+    "columns": ["SECID", "BOARDID", "LAST"],
+    "data": [
+      ["SBER", "TQBR", 312.5],
+      ["LKOH", "TQBR", 7450.0],
+      ["MTSS", "TQBR", 245.3],
+      ["TATN", "TQBR", 680.2]
+    ]
+  }
+}
