@@ -15,6 +15,9 @@ def filter_bonds(
 ) -> list[dict]:
     result = []
     for b in bonds:
+        # пропускаем облигации без цены — скорее всего не торгуются
+        if b["price"] is None:
+            continue
         if yield_min is not None and (b["yield"] is None or b["yield"] < yield_min):
             continue
         if yield_max is not None and (b["yield"] is None or b["yield"] > yield_max):
