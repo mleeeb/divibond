@@ -50,22 +50,23 @@ def bond_current_yield(security: dict, marketdata: dict) -> tuple[Optional[float
 
 
 def maturity_bucket(matdate: Optional[str], today: Optional[date] = None) -> Optional[str]:
-    """Классифицирует срок до погашения для фильтра:
-    lt1 — до 1 года, 1to3 — 1-3 года, 3to5 — 3-5 лет, gt5 — более 5 лет."""
-    if not matdate:
+    if not matdate or matdate == '0000-00-00':
         return None
 
-    today = today or date.today()
-    md = datetime.strptime(matdate, "%Y-%m-%d").date()
-    years = (md - today).days / 365
+    try:
+        today = today or date.today()
+        md = datetime.strptime(matdate, "%Y-%m-%d").date()
+        years = (md - today).days / 365
 
-    if years < 1:
-        return "lt1"
-    if years < 3:
-        return "1to3"
-    if years < 5:
-        return "3to5"
-    return "gt5"
+        if years < 1:
+            return "lt1"
+        if years < 3:
+            return "1to3"
+        if years < 5:
+            return "3to5"
+        return "gt5"
+    except ValueError:
+        return None
 
 
 def dividend_yield_for_year(dividends: list[dict], current_price: float, year: int) -> float:
