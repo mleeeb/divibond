@@ -97,9 +97,8 @@ async def load_stocks() -> list[dict]:
         md = marketdata.get(secid, {})
         price = md.get("LAST")
 
-        div_raw = await fetch_dividends(secid)
-        dividends = table_to_dicts(div_raw.get("dividends", {"columns": [], "data": []}))
-        div_yield = dividend_yield_for_year(dividends, price or 0, DIVIDEND_YEAR)
+        if not price or price <= 0:
+            continue
 
         stocks.append({
             "secid": secid,
@@ -107,7 +106,7 @@ async def load_stocks() -> list[dict]:
             "isin": sec.get("ISIN"),
             "sector": SECTOR_BY_SECID.get(secid, "Другое"),
             "price": price,
-            "dividend_yield": div_yield,
+            "dividend_yield": 0.0,
             "dividend_year": DIVIDEND_YEAR,
         })
 
